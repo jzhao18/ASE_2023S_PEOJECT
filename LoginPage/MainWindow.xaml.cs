@@ -94,6 +94,37 @@ namespace BookStoreGUI
                 //bookOrder.AddItem(new OrderItem(isbn, title, unitPrice, feedback));
             }
         }
+        private void changeButton_Click(object sender, RoutedEventArgs e)
+        {
+            if (this.orderListView.SelectedItem != null)
+            {
+                // Remove old order
+                var selectedOrderItem = this.orderListView.SelectedItem as OrderItem;
+                bookOrder.RemoveItem(selectedOrderItem.BookID);
+                // Add new order
+                OrderItemDialog orderItemDialog = new OrderItemDialog();
+                DataRowView selectedRow;
+                selectedRow = (DataRowView)this.ProductsDataGrid.SelectedItems[0];
+                orderItemDialog.isbnTextBox.Text = selectedRow.Row.ItemArray[0].ToString();
+                orderItemDialog.titleTextBox.Text = selectedRow.Row.ItemArray[2].ToString();
+                orderItemDialog.priceTextBox.Text = selectedRow.Row.ItemArray[4].ToString();
+                orderItemDialog.Owner = this;
+                orderItemDialog.ShowDialog();
+                if (orderItemDialog.DialogResult == true)
+                {
+                    string isbn = orderItemDialog.isbnTextBox.Text;
+                    string title = orderItemDialog.titleTextBox.Text;
+                    double unitPrice = double.Parse(orderItemDialog.priceTextBox.Text);
+                    int quantity = int.Parse(orderItemDialog.quantityTextBox.Text);
+                    bookOrder.AddItem(new OrderItem(isbn, title, unitPrice, quantity));
+                }
+
+
+                // Refresh the ListView after changing the book
+                this.orderListView.ItemsSource = null;
+                this.orderListView.ItemsSource = bookOrder.OrderItemList;
+            }
+        }
         private void removeButton_Click(object sender, RoutedEventArgs e)
         {
             if (this.orderListView.SelectedItem != null)
